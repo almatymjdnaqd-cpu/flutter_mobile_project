@@ -1,0 +1,42 @@
+
+name: Build Flutter APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.38.5'
+
+      - name: Create Flutter project
+        run: |
+          flutter create --platforms=android app
+          cd app
+          flutter pub get
+
+      - name: Build APK
+        run: |
+          cd app
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-app-apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
